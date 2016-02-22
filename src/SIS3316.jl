@@ -1,6 +1,6 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-__precompile__()
+# __precompile__()
 
 module SIS3316
 
