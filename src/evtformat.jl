@@ -171,27 +171,24 @@ end
 
 
 
-read_samples!{T <: Integer}(io::IO, samples::Vector{T}, nsamplewords::Int) = begin
-    resize!(samples, 2 * nsamplewords)
-    for i in 1:2:(2 * nsamplewords - 1)
-        const samples_word = read(io, UInt32)
-        samples[i] = T((samples_word >>>  0) & 0xFFFF)
-        samples[i+1] = T((samples_word >>> 16) & 0xFFFF)
-    end
+read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vector{Int32}) = begin
+    resize!(tmpbuffer, nsamplewords)
+    const tmpsamples = reinterpret(UInt16, tmpbuffer)
+    read!(io, tmpsamples)
+    resize!(samples, length(tmpsamples))
+    copy!(samples, tmpsamples)
     nothing
 end
 
 
-read_mawvalues!{T <: Integer}(io::IO, mawvalues::Vector{T}, nmawvalues::Int) = begin
+read_mawvalues!(io::IO, mawvalues::Vector{Int32}, nmawvalues::Int) = begin
     resize!(mawvalues, nmawvalues)
-    for i in 1:nmawvalues
-        mawvalues[i] = read(io, UInt32)
-    end
+    read(io, mawvalues)
     nothing
 end
 
 
-read(io::IO, ::Type{RawChEvent}, nmawvalues::Int) = begin
+read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, tmpbuffer::Vector{Int32} = Vector{Int32}()) = begin
     # TODO: Add support for averaging value data format
 
     const hdr1 = read(io, UInt32)
@@ -287,7 +284,7 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int) = begin
     # evtFlags foreach { flags => require( pileup_flag == (flags.pileup || flags.repileup) ) }
 
     local samples = Vector{Int32}()
-    read_samples!(io, samples, nsamplewords)
+    read_samples!(io, samples, nsamplewords, tmpbuffer)
 
     local mawvalues = Vector{Int32}()
     if mawTestFlag
@@ -318,11 +315,21 @@ end
 
 
 read(io::IO, ::Type{FileBuffer}) = begin
+# read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = begin
+    const tmpbuffer = Vector{Int32}()
+
     info = read(io, SIS3316.BankChannelHeaderInfo)
     events = Vector{SIS3316.RawChEvent}()
     sizehint!(events, info.nevents)
+
+    # resize!(tmpevtdata, sizeof(UInt32) * info.nevents * info.nwords_per_event)
+    # read!(io, tmpevtdata)
+    # const evtdatabuf = IOBuffer(tmpevtdata)
+
     for i in 1:info.nevents
-        push!(events, read(io, SIS3316.RawChEvent, info.nmawvalues))
+        push!(events, read(io, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
+        # push!(events, read(evtdatabuf, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
     end
+
     FileBuffer(info, events)
 end
