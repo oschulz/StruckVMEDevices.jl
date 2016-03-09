@@ -2,6 +2,8 @@
 
 import Base.read, Base.write
 
+export eachchunk
+
 
 module RegisterBits
     using BitManip
@@ -170,6 +172,10 @@ immutable RawChEvent
 end
 
 
+typealias UnsortedEvents Dict{Int, Vector{SIS3316.RawChEvent}}
+typealias SortedEvents Vector{Dict{Int, RawChEvent}}
+
+
 
 read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vector{Int32}) = begin
     resize!(tmpbuffer, nsamplewords)
@@ -332,4 +338,24 @@ read(io::IO, ::Type{FileBuffer}) = begin
     end
 
     FileBuffer(info, events)
+end
+
+
+eachchunk(input::IO, ::Type{UnsortedEvents}) = @task begin
+    local buffers = UnsortedEvents()
+
+    local bufcount = 0
+    while !eof(input)
+        const buffer = read(input, SIS3316.FileBuffer)
+        bufcount += 1
+        const ch = buffer.info.channel
+        const events = buffer.events
+        if ch in keys(buffers)
+            produce(buffers)
+            empty!(buffers)
+        end
+
+        buffers[ch] = events
+    end
+    !isempty(buffers) && produce(buffers)
 end
