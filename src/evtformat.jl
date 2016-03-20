@@ -320,21 +320,19 @@ immutable FileBuffer
 end
 
 
-read(io::IO, ::Type{FileBuffer}) = begin
-# read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = begin
+read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = begin
     const tmpbuffer = Vector{Int32}()
 
     info = read(io, SIS3316.BankChannelHeaderInfo)
     events = Vector{SIS3316.RawChEvent}()
     sizehint!(events, info.nevents)
 
-    # resize!(tmpevtdata, sizeof(UInt32) * info.nevents * info.nwords_per_event)
-    # read!(io, tmpevtdata)
-    # const evtdatabuf = IOBuffer(tmpevtdata)
+    resize!(tmpevtdata, sizeof(UInt32) * info.nevents * info.nwords_per_event)
+    read!(io, tmpevtdata)
+    const evtdatabuf = IOBuffer(tmpevtdata)
 
     for i in 1:info.nevents
-        push!(events, read(io, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
-        # push!(events, read(evtdatabuf, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
+        push!(events, read(evtdatabuf, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
     end
 
     FileBuffer(info, events)
@@ -343,10 +341,11 @@ end
 
 eachchunk(input::IO, ::Type{UnsortedEvents}) = @task begin
     local buffers = UnsortedEvents()
+    local tmpevtdata = Vector{UInt8}()
 
     local bufcount = 0
     while !eof(input)
-        const buffer = read(input, SIS3316.FileBuffer)
+        const buffer = read(input, SIS3316.FileBuffer, tmpevtdata)
         bufcount += 1
         const ch = buffer.info.channel
         const events = buffer.events
