@@ -1,6 +1,6 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-import Base.read, Base.write
+import Base.read, Base.write, Base.time
 
 export eachchunk
 
@@ -92,7 +92,19 @@ using SIS3316.EventFormat
 
 const multievt_buf_header = UInt32(0xdeadbeef)
 
+
 @enum FirmwareType FW250=0 FW125=1
+
+
+sample_clock(fw::FirmwareType) = begin
+    if fw == FW250
+        250E6
+    elseif fw == FW125
+        125E6
+    else
+        error("Unsupported firmware type")
+    end
+end
 
 
 immutable BankChannelHeaderInfo
@@ -160,6 +172,7 @@ end
 
 immutable RawChEvent
   chid::Int32
+  firmware_type::FirmwareType
   timestamp::Int
   flags::Nullable{EvtFlags}
   accsums::Vector{Int32}
@@ -170,6 +183,8 @@ immutable RawChEvent
   samples::Vector{Int32}
   mawvalues::Vector{Int32}
 end
+
+time(evt::RawChEvent) = evt.timestamp / sample_clock(evt.firmware_type)
 
 
 typealias UnsortedEvents Dict{Int, Vector{SIS3316.RawChEvent}}
@@ -194,7 +209,7 @@ read_mawvalues!(io::IO, mawvalues::Vector{Int32}, nmawvalues::Int) = begin
 end
 
 
-read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, tmpbuffer::Vector{Int32} = Vector{Int32}()) = begin
+read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, tmpbuffer::Vector{Int32} = Vector{Int32}()) = begin
     # TODO: Add support for averaging value data format
 
     const hdr1 = read(io, UInt32)
@@ -300,6 +315,7 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, tmpbuffer::Vector{Int32} = Vec
 
     RawChEvent(
         chid,
+        firmware_type,
         timestamp,
         evtFlags,
         accsums,
@@ -332,7 +348,7 @@ read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = 
     const evtdatabuf = IOBuffer(tmpevtdata)
 
     for i in 1:info.nevents
-        push!(events, read(evtdatabuf, SIS3316.RawChEvent, info.nmawvalues, tmpbuffer))
+        push!(events, read(evtdatabuf, SIS3316.RawChEvent, info.nmawvalues, info.firmware_type, tmpbuffer))
     end
 
     FileBuffer(info, events)

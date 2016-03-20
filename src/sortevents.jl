@@ -1,9 +1,9 @@
-# This file is a part of jl, licensed under the MIT License (MIT).
+# This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
 export sortevents!, sortevents
 
 
-sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window = 10) = begin
+sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window::AbstractFloat = 100e-9) = begin
     iterv(p::Pair{Int, Vector{RawChEvent}}) = Pair(p.first, IterView(p.second))
     getts(elem::Pair{Int, RawChEvent}) = elem.second.timestamp
 
@@ -20,11 +20,11 @@ sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window = 10) =
     const merged = Dict{Int, RawChEvent}()
     while !isempty(current)
         sort!(current, by = getts)
-        const reftime = current[1].second.timestamp
+        const reftime = time(current[1].second)
 
         empty!(merged)
         local n = 0
-        while (n == 0) || !isempty(current) && (first(current).second.timestamp - reftime <= merge_window)
+        while (n == 0) || !isempty(current) && (time(first(current).second) - reftime <= merge_window)
             const ch, event = shift!(current)
             merged[ch] = event
             !isempty(input[ch]) && push!(pending, Pair(ch, shift!(input[ch])))
@@ -39,5 +39,5 @@ sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window = 10) =
 end
 
 
-sortevents(unsorted::UnsortedEvents; merge_window = 10) =
+sortevents(unsorted::UnsortedEvents; merge_window::AbstractFloat = 100e-9) =
     sortevents!(SortedEvents(), unsorted, merge_window = merge_window)
