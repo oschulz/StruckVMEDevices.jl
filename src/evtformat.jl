@@ -1,5 +1,7 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
+using BitManip
+
 import Base.read, Base.write, Base.time
 
 export eachchunk
@@ -28,6 +30,8 @@ end
 
 
 module EventFormat
+    using BitManip
+
     export evt_data_hdr1
     module evt_data_hdr1
         using SIS3316.RegisterBits
@@ -119,15 +123,15 @@ end
 
 
 read(io::IO, ::Type{BankChannelHeaderInfo}) = begin
-    assert(read(io, UInt32) == multievt_buf_header)
+    assert(ltoh(read(io, UInt32)) == multievt_buf_header)
     BankChannelHeaderInfo(
-        FirmwareType(read(io, UInt32)),
-        Int(read(io, UInt32)),
-        Int(read(io, UInt32)) + 1,
-        Int(read(io, UInt32)),
-        Int(read(io, UInt32)),
-        Int(read(io, UInt32)),
-        Int(read(io, UInt32)),
+        FirmwareType(ltoh(read(io, UInt32))),
+        Int(ltoh(read(io, UInt32))),
+        Int(ltoh(read(io, UInt32))) + 1,
+        Int(ltoh(read(io, UInt32))),
+        Int(ltoh(read(io, UInt32))),
+        Int(ltoh(read(io, UInt32))),
+        Int(ltoh(read(io, UInt32))),
     )
 end
 
@@ -197,7 +201,7 @@ read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vect
     const tmpsamples = reinterpret(UInt16, tmpbuffer)
     read!(io, tmpsamples)
     resize!(samples, length(tmpsamples))
-    copy!(samples, tmpsamples)
+    ltoh!(samples, tmpsamples)
     nothing
 end
 
@@ -205,6 +209,7 @@ end
 read_mawvalues!(io::IO, mawvalues::Vector{Int32}, nmawvalues::Int) = begin
     resize!(mawvalues, nmawvalues)
     read(io, mawvalues)
+    ltoh!(mawvalues)
     nothing
 end
 
@@ -212,8 +217,8 @@ end
 read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, tmpbuffer::Vector{Int32} = Vector{Int32}()) = begin
     # TODO: Add support for averaging value data format
 
-    const hdr1 = read(io, UInt32)
-    const hdr2 = read(io, UInt32)
+    const hdr1 = ltoh(read(io, UInt32))
+    const hdr2 = ltoh(read(io, UInt32))
 
     const chid = Int32(evt_data_hdr1.ch_id(hdr1))
 
@@ -229,13 +234,13 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
 
     if evt_data_hdr1.have_ph_acc16(hdr1)
-        const ph_word = read(io, UInt32)
-        const acc1_word = read(io, UInt32)
-        const acc2_word = read(io, UInt32)
-        const acc3_word = read(io, UInt32)
-        const acc4_word = read(io, UInt32)
-        const acc5_word = read(io, UInt32)
-        const acc6_word = read(io, UInt32)
+        const ph_word = ltoh(read(io, UInt32))
+        const acc1_word = ltoh(read(io, UInt32))
+        const acc2_word = ltoh(read(io, UInt32))
+        const acc3_word = ltoh(read(io, UInt32))
+        const acc4_word = ltoh(read(io, UInt32))
+        const acc5_word = ltoh(read(io, UInt32))
+        const acc6_word = ltoh(read(io, UInt32))
 
         peak_height = Nullable( PSAValue(
             Int32(evt_data_peak_height.peak_heigh_idx(ph_word)),
@@ -260,8 +265,8 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
 
     if evt_data_hdr1.have_acc_78(hdr1)
-        const acc7_word = read(io, UInt32)
-        const acc8_word = read(io, UInt32)
+        const acc7_word = ltoh(read(io, UInt32))
+        const acc8_word = ltoh(read(io, UInt32))
 
         const oldlen = length(accsums)
         resize!(accsums, 8)
@@ -272,9 +277,9 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
 
     if evt_data_hdr1.have_ft_maw(hdr1)
-        const maw_max_word = read(io, UInt32)
-        const maw_pretrig_word = read(io, UInt32)
-        const maw_posttrig_word = read(io, UInt32)
+        const maw_max_word = ltoh(read(io, UInt32))
+        const maw_pretrig_word = ltoh(read(io, UInt32))
+        const maw_posttrig_word = ltoh(read(io, UInt32))
 
         trig_maw = Nullable( MAWValues(
             Int32(evt_data_maw_value.maw_val(maw_max_word)),
@@ -285,8 +290,8 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
 
     if evt_data_hdr1.have_energy(hdr1)
-        const start_energy_word = read(io, UInt32) % Int32
-        const max_energy_word = read(io, UInt32) % Int32
+        const start_energy_word = ltoh(read(io, UInt32)) % Int32
+        const max_energy_word = ltoh(read(io, UInt32)) % Int32
 
         energy = Nullable( EnergyValues(
             Int32(start_energy_word),
@@ -295,7 +300,7 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
     end
 
 
-    const samples_hdr_word = read(io, UInt32)
+    const samples_hdr_word = ltoh(read(io, UInt32))
 
     assert(evt_samples_hdr.const_tag(samples_hdr_word) == 0xE)
     const mawTestFlag = evt_samples_hdr.maw_test_flag(samples_hdr_word)

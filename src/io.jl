@@ -5,17 +5,6 @@ import Base: read, write
 export open_decompressed
 
 
-immutable BigEndianIO{IOType <: IO}
-    io::IOType
-end
-
-write(s::BigEndianIO, x::Integer) =
-    write(s.io, bswap(x))
-
-read{T <: Integer}(s::BigEndianIO, ::Type{T}) =
-    bswap(read(s.io, T))
-
-
 open_decompressed(filename::AbstractString) = begin
     if endswith(filename, ".gz")
         open(`gzip -d -c $filename`, "r", STDOUT)[1]
