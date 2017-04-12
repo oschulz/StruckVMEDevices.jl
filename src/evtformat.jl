@@ -17,14 +17,14 @@ module RegisterBits
         bit::Int
     end
 
-    call(regbit::RegBit, x::Integer) = bget(x, regbit.bit)
+    (regbit::RegBit)(x::Integer) = bget(x, regbit.bit)
 
 
     immutable RegBits
         bits::UnitRange{Int64}
     end
 
-    call(regbits::RegBits, x::Integer) = bget(x, regbits.bits)
+    (regbits::RegBits)(x::Integer) = bget(x, regbits.bits)
 end
 
 
@@ -198,10 +198,19 @@ typealias SortedEvents Vector{Dict{Int, RawChEvent}}
 
 read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vector{Int32}) = begin
     resize!(tmpbuffer, nsamplewords)
-    const tmpsamples = reinterpret(UInt16, tmpbuffer)
-    read!(io, tmpsamples)
-    resize!(samples, length(tmpsamples))
-    ltoh!(samples, tmpsamples)
+    read!(io, tmpbuffer)
+    ltoh!(tmpbuffer)
+    resize!(samples, 2*length(tmpbuffer))
+
+    idxs = eachindex(tmpbuffer)
+    checkbounds(samples, 2*first(idxs) - 1)
+    checkbounds(samples, 2*last(idxs)  - 0)
+    @inbounds @simd for i in idxs
+        x = tmpbuffer[i]
+        bitsel = Int32(0xFFFF)
+        samples[2*i - 1] = (x >>>  0) & bitsel
+        samples[2*i - 0] = (x >>> 16) & bitsel
+    end
     nothing
 end
 
