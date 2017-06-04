@@ -191,8 +191,8 @@ end
 time(evt::RawChEvent) = evt.timestamp / sample_clock(evt.firmware_type)
 
 
-typealias UnsortedEvents Dict{Int, Vector{SIS3316.RawChEvent}}
-typealias SortedEvents Vector{Dict{Int, RawChEvent}}
+const UnsortedEvents = Dict{Int, Vector{SIS3316.RawChEvent}}
+const SortedEvents = Vector{Dict{Int, RawChEvent}}
 
 
 
