@@ -1,11 +1,12 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-import Base: read, write
-
-export open_decompressed
+using Compat
 
 
-open_decompressed(filename::AbstractString) = begin
+@compat abstract type DecompessIO end
+
+
+Base.open(DecompessIO, filename::AbstractString) = begin
     if endswith(filename, ".gz")
         open(`gzip -d -c $filename`, "r", STDOUT)[1]
     elseif endswith(filename, ".bz2")
@@ -18,6 +19,6 @@ open_decompressed(filename::AbstractString) = begin
     elseif endswith(filename, ".xz")
         open(`xz -d -c $filename`, "r", STDOUT)[1]
     else
-         open(filename, "r")
+        open(filename, "r")
     end
 end
