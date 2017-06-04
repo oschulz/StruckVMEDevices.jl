@@ -177,7 +177,7 @@ end
 immutable RawChEvent
   chid::Int32
   firmware_type::FirmwareType
-  timestamp::Int
+  timestamp::Int64
   flags::Nullable{EvtFlags}
   accsums::Vector{Int32}
   peak_height::Nullable{PSAValue}
