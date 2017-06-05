@@ -217,7 +217,7 @@ end
 
 read_mawvalues!(io::IO, mawvalues::Vector{Int32}, nmawvalues::Int) = begin
     resize!(mawvalues, nmawvalues)
-    read(io, mawvalues)
+    read!(io, mawvalues)
     ltoh!(mawvalues)
     nothing
 end
