@@ -1,9 +1,7 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-using Compat
 
-
-@compat abstract type DecompessIO end
+abstract type DecompessIO end
 
 
 Base.open(DecompessIO, filename::AbstractString) = begin
