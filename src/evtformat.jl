@@ -10,7 +10,6 @@ export eachchunk
 module RegisterBits
     using BitManip
 
-    import Base.call
     export RegBit, RegBits
 
     immutable RegBit
@@ -371,22 +370,29 @@ read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = 
 end
 
 
-eachchunk(input::IO, ::Type{UnsortedEvents}) = @task begin
-    local buffers = UnsortedEvents()
-    local tmpevtdata = Vector{UInt8}()
+eachchunk(input::IO, ::Type{UnsortedEvents}) = begin
+    output = Channel{UnsortedEvents}(1)
 
-    local bufcount = 0
-    while !eof(input)
-        const buffer = read(input, SIS3316.FileBuffer, tmpevtdata)
-        bufcount += 1
-        const ch = buffer.info.channel
-        const events = buffer.events
-        if ch in keys(buffers)
-            produce(buffers)
-            empty!(buffers)
+    @schedule begin
+        local buffers = UnsortedEvents()
+        local tmpevtdata = Vector{UInt8}()
+
+        local bufcount = 0
+        while !eof(input)
+            const buffer = read(input, SIS3316.FileBuffer, tmpevtdata)
+            bufcount += 1
+            const ch = buffer.info.channel
+            const events = buffer.events
+            if ch in keys(buffers)
+                put!(output, buffers)
+                empty!(buffers)
+            end
+
+            buffers[ch] = events
         end
-
-        buffers[ch] = events
+        !isempty(buffers) && put!(output, buffers)
+        close(output)
     end
-    !isempty(buffers) && produce(buffers)
+
+    output
 end
