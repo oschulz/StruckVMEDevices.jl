@@ -203,8 +203,10 @@ read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vect
     resize!(samples, 2*length(tmpbuffer))
 
     idxs = eachindex(tmpbuffer)
-    checkbounds(samples, 2*first(idxs) - 1)
-    checkbounds(samples, 2*last(idxs)  - 0)
+    if !isempty(idxs)
+        checkbounds(samples, 2*first(idxs) - 1)
+        checkbounds(samples, 2*last(idxs)  - 0)
+    end
     @inbounds @simd for i in idxs
         x = tmpbuffer[i]
         bitsel = Int32(0xFFFF)
