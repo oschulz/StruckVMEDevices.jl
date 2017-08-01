@@ -385,7 +385,7 @@ eachchunk(input::IO, ::Type{UnsortedEvents}) = begin
             const events = buffer.events
             if ch in keys(buffers)
                 put!(output, buffers)
-                empty!(buffers)
+                buffers = UnsortedEvents()
             end
 
             buffers[ch] = events
