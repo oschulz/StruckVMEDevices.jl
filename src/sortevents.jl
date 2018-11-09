@@ -4,34 +4,34 @@ export sortevents!, sortevents
 
 
 sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window::AbstractFloat = 100e-9) = begin
-    iterv(p::Pair{Int, Vector{RawChEvent}}) = Pair(p.first, IterView(p.second))
+    iterv(p::Pair{Int, Vector{RawChEvent}}) = Pair(p.first, IterView(p.second, 1))
     getts(elem::Pair{Int, RawChEvent}) = elem.second.timestamp
 
-    const input = Dict{Int, IterView{Vector{RawChEvent},Int}}(map(iterv, unsorted))
-    const current = Vector{Pair{Int, RawChEvent}}()
-    const pending = Vector{Pair{Int, RawChEvent}}()
+    input = Dict{Int, IterView{Vector{RawChEvent},Int}}(map(iterv, [ Pair(key, unsorted[key]) for key in keys(unsorted) ]))
+    current = Vector{Pair{Int, RawChEvent}}()
 
+    n_channel::Int = 0
     for (ch, events) in input
-        if !isempty(events)
-            push!(current, Pair(ch, shift!(events)))
+        if !isempty(events) n_channel += 1 end
+        for evt in events
+            push!(current, Pair(ch, evt))
         end
     end
 
-    const merged = Dict{Int, RawChEvent}()
-    while !isempty(current)
-        sort!(current, by = getts)
-        const reftime = time(current[1].second)
+    sort!(current, by = getts)
 
-        empty!(merged)
-        local n = 0
-        while (n == 0) || !isempty(current) && (time(first(current).second) - reftime <= merge_window)
-            const ch, event = shift!(current)
-            merged[ch] = event
-            !isempty(input[ch]) && push!(pending, Pair(ch, shift!(input[ch])))
+    event_i = 0
+    while !isempty(current)
+        reftime = time(current[1].second)
+        merged = Dict{Int, RawChEvent}()
+        n = 0
+        event_i += 1
+        while n < n_channel && !isempty(current) &&(time(first(current).second) - reftime <= merge_window)
             n += 1
+            push!(merged, current[1])
+            deleteat!(current, 1)
         end
-        while !isempty(pending) unshift!(current, pop!(pending)) end
-        const mc = copy(merged)
+        mc = copy(merged)
         push!(sorted, mc)
     end
 
