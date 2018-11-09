@@ -3,15 +3,9 @@
 using BitOperations
 
 if ENDIAN_BOM == 0x01020304
-    ntoh!(x) = x
-    hton!(x) = x
-    ltoh!(x) = bswap!(x)
-    htol!(x) = bswap!(x)
+    _ltoh!(x) = bswap!(x)
 elseif ENDIAN_BOM == 0x04030201
-    ntoh!(x) = bswap!(x)
-    hton!(x) = bswap!(x)
-    ltoh!(x) = x
-    htol!(x) = x
+    _ltoh!(x) = x
 end
 
 
@@ -211,7 +205,7 @@ const SortedEvents = Vector{Dict{Int, RawChEvent}}
 read_samples!(io::IO, samples::Vector{Int32}, nsamplewords::Int, tmpbuffer::Vector{Int32}) = begin
     resize!(tmpbuffer, nsamplewords)
     read!(io, tmpbuffer)
-    ltoh!(tmpbuffer)
+    _ltoh!(tmpbuffer)
     resize!(samples, 2*length(tmpbuffer))
 
     idxs = eachindex(tmpbuffer)
@@ -232,7 +226,7 @@ end
 read_mawvalues!(io::IO, mawvalues::Vector{Int32}, nmawvalues::Int) = begin
     resize!(mawvalues, nmawvalues)
     read!(io, mawvalues)
-    ltoh!(mawvalues)
+    _ltoh!(mawvalues)
     nothing
 end
 
