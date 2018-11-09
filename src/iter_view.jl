@@ -1,32 +1,22 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-import Base: isempty, shift!, start, next, done
+import Base: iterate, isempty, length
 
 
-type IterView{Iterable, State}
+struct IterView{Iterable, State}
     iter::Iterable
     state::State
 end
 
-IterView(iter) = IterView(iter, start(iter))
-
-
-isempty(it::IterView) = done(it.iter, it.state)
-
-
-shift!(it::IterView) = begin
-    const result, state = next(it.iter, it.state)
-    it.state = state
-    result
+function iterate(it::IterView, state = 1)
+	if state > length(it) 
+		return nothing
+	else
+		return ( it.iter[state], state + 1 )
+	end
 end
 
+function length(it::IterView)
+	return length(it.iter)
+end
 
-start(it::IterView) = it.state
-
-
-next{Iterable, State}(it::IterView{Iterable, State}, state::State) =
-    next(it.iter, state)
-
-
-done{Iterable, State}(it::IterView{Iterable, State}, state::State) =
-    done(it.iter, state)
