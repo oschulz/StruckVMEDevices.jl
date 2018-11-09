@@ -3,10 +3,10 @@
 using Compat
 
 
-@compat abstract type DecompessIO end
+abstract type DecompessIO end
 
 
-Base.open(DecompessIO, filename::AbstractString) = begin
+Base.open(filename::AbstractString, ::Type{DecompessIO}) = begin
     if endswith(filename, ".gz")
         open(`gzip -d -c $filename`, "r", STDOUT)[1]
     elseif endswith(filename, ".bz2")
