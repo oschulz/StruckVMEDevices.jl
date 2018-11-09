@@ -243,16 +243,11 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
     ts_low = evt_data_hdr2.timestamp_low(hdr2)
     timestamp = Int((UInt(ts_high) << 32) | (UInt(ts_low) << 0))
 
-    # local evtFlags = Nullable{EvtFlags}()
-    # local accsums = Vector{Int32}()
-    # local peak_height = Nullable{PSAValue}()
-    # local trig_maw = Nullable{MAWValues}()
-    # local energy = Nullable{EnergyValues}()
-    local evtFlags = nothing
-    local accsums = Vector{Int32}()
-    local peak_height = nothing
-    local trig_maw = nothing
-    local energy = nothing
+    local evtFlags::Union{Nothing, EvtFlags} = nothing
+    local accsums::Vector{Int32} = Vector{Int32}()
+    local peak_height::Union{Nothing, PSAValue} = nothing
+    local trig_maw::Union{Nothing, MAWValues} = nothing
+    local energy::Union{Nothing, EnergyValues} = nothing
 
 
     if evt_data_hdr1.have_ph_acc16(hdr1)
@@ -264,21 +259,11 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
         acc5_word = ltoh(read(io, UInt32))
         acc6_word = ltoh(read(io, UInt32))
 
-        # peak_height = Nullable( PSAValue(
-        #     Int32(evt_data_peak_height.peak_heigh_idx(ph_word)),
-        #     Int32(evt_data_peak_height.peak_heigh_val(ph_word))
-        # ) )
         peak_height = PSAValue(
             Int32(evt_data_peak_height.peak_heigh_idx(ph_word)),
             Int32(evt_data_peak_height.peak_heigh_val(ph_word))
         ) 
 
-        # evtFlags = Nullable( EvtFlags(
-        #     evt_data_acc_sum_g1.overflow_flag(acc1_word),
-        #     evt_data_acc_sum_g1.underflow_flag(acc1_word),
-        #     evt_data_acc_sum_g1.repileup_flag(acc1_word),
-        #     evt_data_acc_sum_g1.pileup_flag(acc1_word)
-        # ) )
         evtFlags = EvtFlags(
             evt_data_acc_sum_g1.overflow_flag(acc1_word),
             evt_data_acc_sum_g1.underflow_flag(acc1_word),
@@ -313,11 +298,6 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
         maw_pretrig_word = ltoh(read(io, UInt32))
         maw_posttrig_word = ltoh(read(io, UInt32))
 
-        # trig_maw = Nullable( MAWValues(
-        #     Int32(evt_data_maw_value.maw_val(maw_max_word)),
-        #     Int32(evt_data_maw_value.maw_val(maw_pretrig_word)),
-        #     Int32(evt_data_maw_value.maw_val(maw_posttrig_word))
-        # ) )
         trig_maw = MAWValues(
             Int32(evt_data_maw_value.maw_val(maw_max_word)),
             Int32(evt_data_maw_value.maw_val(maw_pretrig_word)),
@@ -330,10 +310,6 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
         start_energy_word = ltoh(read(io, UInt32)) % Int32
         max_energy_word = ltoh(read(io, UInt32)) % Int32
 
-    #     energy = Nullable( EnergyValues(
-    #         Int32(start_energy_word),
-    #         Int32(max_energy_word)
-    #     ) )
         energy = EnergyValues(
             Int32(start_energy_word),
             Int32(max_energy_word)
