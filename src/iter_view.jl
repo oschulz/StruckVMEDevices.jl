@@ -1,6 +1,6 @@
 # This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
 
-import Base: iterate, isempty, length
+import Base: iterate, length
 
 
 struct IterView{Iterable, State}
