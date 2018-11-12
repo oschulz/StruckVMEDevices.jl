@@ -4,7 +4,6 @@ __precompile__(true)
 
 module SIS3316
 
-include("iter_view.jl")
 include("evtformat.jl")
 include("sortevents.jl")
 include("filters.jl")

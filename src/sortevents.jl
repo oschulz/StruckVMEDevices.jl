@@ -4,14 +4,11 @@ export sortevents!, sortevents
 
 
 sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window::AbstractFloat = 100e-9) = begin
-    iterv(p::Pair{Int, Vector{RawChEvent}}) = Pair(p.first, IterView(p.second, 1))
     getts(elem::Pair{Int, RawChEvent}) = elem.second.timestamp
 
-    input = Dict{Int, IterView{Vector{RawChEvent},Int}}(map(iterv, [ Pair(key, unsorted[key]) for key in keys(unsorted) ]))
     current = Vector{Pair{Int, RawChEvent}}()
-
     n_channel::Int = 0
-    for (ch, events) in input
+    for (ch, events) in unsorted
         if !isempty(events) n_channel += 1 end
         for evt in events
             push!(current, Pair(ch, evt))
@@ -26,7 +23,7 @@ sortevents!(sorted::SortedEvents, unsorted::UnsortedEvents; merge_window::Abstra
         merged = Dict{Int, RawChEvent}()
         n = 0
         event_i += 1
-        while n < n_channel && !isempty(current) &&(time(first(current).second) - reftime <= merge_window)
+        while n < n_channel && !isempty(current) && (time(first(current).second) - reftime <= merge_window)
             n += 1
             push!(merged, current[1])
             deleteat!(current, 1)
