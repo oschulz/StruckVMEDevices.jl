@@ -6,7 +6,7 @@ export eintegrate, eintegrate!
 
 ediff!(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) where {T <: Number, U <: Number} = begin
     length(dest) != length(src) && throw(BoundsError())
-    local last = initial
+    last = initial
     @inbounds for i in eachindex(dest)
         current = src[i]
         dest[i] = current - last
@@ -24,7 +24,7 @@ ediff(v::AbstractVector{T}, initial::T = zero(T)) where {T <: Number} =
 
 eintegrate!(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) where {T <: Number, U <: Number} = begin
     length(dest) != length(src) && throw(BoundsError())
-    local total = initial
+    total = initial
     @inbounds for i in eachindex(dest)
         total += src[i]
         dest[i] = total

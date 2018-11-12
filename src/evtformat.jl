@@ -243,11 +243,11 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
     ts_low = evt_data_hdr2.timestamp_low(hdr2)
     timestamp = Int((UInt(ts_high) << 32) | (UInt(ts_low) << 0))
 
-    local evtFlags::Union{Nothing, EvtFlags} = nothing
-    local accsums::Vector{Int32} = Vector{Int32}()
-    local peak_height::Union{Nothing, PSAValue} = nothing
-    local trig_maw::Union{Nothing, MAWValues} = nothing
-    local energy::Union{Nothing, EnergyValues} = nothing
+    evtFlags::Union{Nothing, EvtFlags} = nothing
+    accsums::Vector{Int32} = Vector{Int32}()
+    peak_height::Union{Nothing, PSAValue} = nothing
+    trig_maw::Union{Nothing, MAWValues} = nothing
+    energy::Union{Nothing, EnergyValues} = nothing
 
 
     if evt_data_hdr1.have_ph_acc16(hdr1)
@@ -326,10 +326,10 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
     # evtFlags foreach { flags => require( pileup_flag == (flags.pileup || flags.repileup) ) }
 
-    local samples = Vector{Int32}()
+    samples = Vector{Int32}()
     read_samples!(io, samples, nsamplewords, tmpbuffer)
 
-    local mawvalues = Vector{Int32}()
+    mawvalues = Vector{Int32}()
     if mawTestFlag
         @assert nmawvalues % 2 == 0
         read_mawvalues!(io, mawvalues, nmawvalues)
@@ -382,10 +382,10 @@ eachchunk(input::IO, ::Type{UnsortedEvents}) = begin
 
     # @schedule begin # v0.6
     @async begin
-        local buffers = UnsortedEvents()
-        local tmpevtdata = Vector{UInt8}()
+        buffers = UnsortedEvents()
+        tmpevtdata = Vector{UInt8}()
 
-        local bufcount = 0
+        bufcount = 0
         while !eof(input)
             buffer = read(input, SIS3316.FileBuffer, tmpevtdata)
             bufcount += 1
