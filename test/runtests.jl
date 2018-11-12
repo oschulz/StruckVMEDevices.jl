@@ -2,7 +2,6 @@
 
 import Compat.Test
 Test.@testset "Package SIS3316" begin
-	include("../src/iter_view.jl")
 	include("../src/evtformat.jl")
 	include("../src/sortevents.jl")
 	include("../src/filters.jl")
