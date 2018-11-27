@@ -4,12 +4,8 @@ __precompile__(true)
 
 module SIS3316
 
-include.([
-    "io.jl",
-    "iter_view.jl",
-    "evtformat.jl",
-    "sortevents.jl",
-    "filters.jl",
-])
+include("evtformat.jl")
+include("sortevents.jl")
+include("filters.jl")
 
 end # module

@@ -4,27 +4,27 @@ export ediff, ediff!
 export eintegrate, eintegrate!
 
 
-ediff!{T <: Number, U <: Number}(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) = begin
+ediff!(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) where {T <: Number, U <: Number} = begin
     length(dest) != length(src) && throw(BoundsError())
-    local last = initial
+    last = initial
     @inbounds for i in eachindex(dest)
-        const current = src[i]
+        current = src[i]
         dest[i] = current - last
         last = current
     end
     dest
 end
 
-ediff!{T <: Number}(v::AbstractVector{T}, initial::T = zero(T)) =
+ediff!(v::AbstractVector{T}, initial::T = zero(T)) where {T <: Number} =
     ediff!(v, v, initial)
 
-ediff{T <: Number}(v::AbstractVector{T}, initial::T = zero(T)) =
+ediff(v::AbstractVector{T}, initial::T = zero(T)) where {T <: Number} =
     ediff!(Vector{T}(length(v)), v, initial)
 
 
-eintegrate!{T <: Number, U <: Number}(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) = begin
+eintegrate!(dest::AbstractVector{T}, src::AbstractVector{U}, initial::U = zero(U)) where {T <: Number, U <: Number} = begin
     length(dest) != length(src) && throw(BoundsError())
-    local total = initial
+    total = initial
     @inbounds for i in eachindex(dest)
         total += src[i]
         dest[i] = total
@@ -32,8 +32,8 @@ eintegrate!{T <: Number, U <: Number}(dest::AbstractVector{T}, src::AbstractVect
     dest
 end
 
-eintegrate!{T <: Number}(v::AbstractVector{T}, initial::T = zero(T)) =
+eintegrate!(v::AbstractVector{T}, initial::T = zero(T)) where {T <: Number} =
     eintegrate!(v, v, initial)
 
-eintegrate{T <: Number}(v::AbstractVector{T}, initial::T = zero(T)) =
+eintegrate(v::AbstractVector{T}, initial::T = zero(T)) where {T <: Number} =
     eintegrate!(Vector{T}(length(v)), v, initial)
