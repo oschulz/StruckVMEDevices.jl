@@ -1,0 +1,15 @@
+name = "SIS3316Digitizers"
+uuid = "d1878dac-861e-11e9-0454-3b51f21b60a4"
+version = "0.1.0"
+
+[deps]
+BitOperations = "e1e0eea2-bc69-5bf6-8574-13634873a17c"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

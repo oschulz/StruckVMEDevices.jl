@@ -1,4 +1,4 @@
-# This file is a part of SIS3316.jl, licensed under the MIT License (MIT).
+# This file is a part of SIS3316Digitizers.jl, licensed under the MIT License (MIT).
 
 export sortevents!, sortevents
 

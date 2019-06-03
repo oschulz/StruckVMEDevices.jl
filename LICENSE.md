@@ -1,4 +1,4 @@
-The SIS3316.jl package is licensed under the MIT "Expat" License:
+The SIS3316Digitizers.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2016: Oliver Schulz.
 >
