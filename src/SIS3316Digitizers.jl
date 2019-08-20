@@ -4,7 +4,10 @@ __precompile__(true)
 
 module SIS3316Digitizers
 
+using ArraysOfArrays
 using BitOperations
+using ElasticArrays
+using UnsafeArrays
 
 include("evtformat.jl")
 include("sortevents.jl")
