@@ -30,7 +30,7 @@ function read_data(input::IO; nbuffers = typemax(Int))
             evt = read(evtdatabuf, SIS3316Digitizers.RawChEvent, bufinfo.nmawvalues, bufinfo.firmware_type, tmpbuffer)
 
             push!(daqevtno, evtno)
-            push!(channel, evt.chid)
+            push!(channel, evt.chid + 1)
             push!(bufferno, bufno)
             push!(timestamp, evt.timestamp)
             push!(energy, isnothing(evt.energy) ? Int32(0) : evt.energy.maximum)
