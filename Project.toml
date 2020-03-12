@@ -10,6 +10,7 @@ UnsafeArrays = "c4a57d5a-5b31-53a6-b365-19f8c011fbd6"
 
 [compat]
 ArraysOfArrays = "0.4"
+ElasticArrays = "1.0"
 julia = "1"
 
 [extras]
