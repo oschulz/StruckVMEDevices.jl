@@ -1,5 +1,5 @@
-name = "SIS3316Digitizers"
-uuid = "d1878dac-861e-11e9-0454-3b51f21b60a4"
+name = "StruckVMEDevices"
+uuid = "69174580-7ee9-4dbc-9740-183fc008c76b"
 version = "0.1.0"
 
 [deps]

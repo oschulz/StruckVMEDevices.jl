@@ -1,4 +1,4 @@
-# This file is a part of SIS3316Digitizers.jl, licensed under the MIT License (MIT).
+# This file is a part of StruckVMEDevices.jl, licensed under the MIT License (MIT).
 
 if ENDIAN_BOM == 0x01020304
     _ltoh!(x) = bswap!(x)
@@ -38,7 +38,7 @@ module EventFormat
 
     export evt_data_hdr1
     module evt_data_hdr1
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const timestamp_high    = RegBits(16:31)  # Timestamp, high bits
         const ch_id             = RegBits( 4:15)  # Channel ID
         const have_energy       = RegBit(3)  # Event contains Start Energy MAW value and Max. Energy MAW value
@@ -49,20 +49,20 @@ module EventFormat
 
     export evt_data_hdr2
     module evt_data_hdr2
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const timestamp_low     = RegBits(0:31)  # Timestamp, low bits
     end
 
     export evt_data_peak_height
     module evt_data_peak_height
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const peak_heigh_idx    = RegBits(16:31)  # Index of Peakhigh value
         const peak_heigh_val    = RegBits( 0:15)  # Peakhigh value
     end
 
     export evt_data_acc_sum_g1
     module evt_data_acc_sum_g1
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const overflow_flag     = RegBit(24 + 7)  # Overflow flag
         const underflow_flag    = RegBit(24 + 6)  # Underflow flag
         const repileup_flag     = RegBit(24 + 5)  # RePileup flag
@@ -72,13 +72,13 @@ module EventFormat
 
     export evt_data_acc_sum
     module evt_data_acc_sum
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const acc_sum           = RegBits(0:27)  # Accumulator sum of Gate (for Gates 2 to 8)
     end
 
     export evt_data_maw_value
     module evt_data_maw_value
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         # Note: Documentation says bit 0..27, but for some reason bit 27 seems
         # to (always?) be set:
         const maw_val           = RegBits(0:26)  # MAW value (maximum or value before or after trigger)
@@ -86,7 +86,7 @@ module EventFormat
 
     export evt_samples_hdr
     module evt_samples_hdr
-        using SIS3316Digitizers.RegisterBits
+        using StruckVMEDevices.RegisterBits
         const const_tag         = RegBits(28:31)  # Always 0xE
         const maw_test_flag     = RegBit(27)  # MAW Test Flag
         const any_pileup_flag   = RegBit(26)  # RePileup or Pileup Flag
@@ -94,7 +94,7 @@ module EventFormat
     end
 end
 
-using SIS3316Digitizers.EventFormat
+using StruckVMEDevices.EventFormat
 
 
 
@@ -359,8 +359,8 @@ end
 read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = begin
     tmpbuffer = Vector{Int32}()
 
-    info = read(io, SIS3316Digitizers.BankChannelHeaderInfo)
-    events = Vector{SIS3316Digitizers.RawChEvent}()
+    info = read(io, StruckVMEDevices.BankChannelHeaderInfo)
+    events = Vector{StruckVMEDevices.RawChEvent}()
     sizehint!(events, info.nevents)
 
     resize!(tmpevtdata, sizeof(UInt32) * info.nevents * info.nwords_per_event)
@@ -368,7 +368,7 @@ read(io::IO, ::Type{FileBuffer}, tmpevtdata::Vector{UInt8} = Vector{UInt8}()) = 
     evtdatabuf = IOBuffer(tmpevtdata)
 
     for i in 1:info.nevents
-        push!(events, read(evtdatabuf, SIS3316Digitizers.RawChEvent, info.nmawvalues, info.firmware_type, tmpbuffer))
+        push!(events, read(evtdatabuf, StruckVMEDevices.RawChEvent, info.nmawvalues, info.firmware_type, tmpbuffer))
     end
 
     FileBuffer(info, events)
@@ -385,7 +385,7 @@ eachchunk(input::IO, ::Type{UnsortedEvents}) = begin
 
         bufcount = 0
         while !eof(input)
-            buffer = read(input, SIS3316Digitizers.FileBuffer, tmpevtdata)
+            buffer = read(input, StruckVMEDevices.FileBuffer, tmpevtdata)
             bufcount += 1
             ch = buffer.info.channel
             events = buffer.events

@@ -1,7 +1,7 @@
-# This file is a part of SIS3316Digitizers.jl, licensed under the MIT License (MIT).
+# This file is a part of StruckVMEDevices.jl, licensed under the MIT License (MIT).
 
 import Test
-Test.@testset "Package SIS3316Digitizers" begin
+Test.@testset "Package StruckVMEDevices" begin
 
 # test code goes here
 

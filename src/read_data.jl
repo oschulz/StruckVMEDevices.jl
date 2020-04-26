@@ -1,4 +1,4 @@
-# This file is a part of SIS3316Digitizers.jl, licensed under the MIT License (MIT).
+# This file is a part of StruckVMEDevices.jl, licensed under the MIT License (MIT).
 
 
 function read_data(input::IO; nbuffers = typemax(Int))
@@ -17,7 +17,7 @@ function read_data(input::IO; nbuffers = typemax(Int))
     nbufread = 0
 
     while !eof(input) && nbufread < nbuffers
-        bufinfo = read(input, SIS3316Digitizers.BankChannelHeaderInfo)
+        bufinfo = read(input, StruckVMEDevices.BankChannelHeaderInfo)
         nbufread += 1
         bufno = bufinfo.bufferno
 
@@ -27,7 +27,7 @@ function read_data(input::IO; nbuffers = typemax(Int))
 
         for i in 1:bufinfo.nevents
             evtno += 1
-            evt = read(evtdatabuf, SIS3316Digitizers.RawChEvent, bufinfo.nmawvalues, bufinfo.firmware_type, tmpbuffer)
+            evt = read(evtdatabuf, StruckVMEDevices.RawChEvent, bufinfo.nmawvalues, bufinfo.firmware_type, tmpbuffer)
 
             push!(daqevtno, evtno)
             push!(channel, evt.chid + 1)

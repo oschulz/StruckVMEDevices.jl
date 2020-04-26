@@ -2,7 +2,7 @@
 
 ```@meta
 DocTestSetup  = quote
-    using SIS3316Digitizers
+    using StruckVMEDevices
 end
 ```
 
@@ -21,6 +21,6 @@ Order = [:function]
 # Documentation
 
 ```@autodocs
-Modules = [SIS3316Digitizers]
+Modules = [StruckVMEDevices]
 Order = [:type, :function]
 ```

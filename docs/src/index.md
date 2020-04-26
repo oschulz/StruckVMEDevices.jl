@@ -1,1 +1,1 @@
-# SIS3316Digitizers.jl
+# StruckVMEDevices.jl

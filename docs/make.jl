@@ -5,14 +5,14 @@
 # for local builds.
 
 using Documenter
-using SIS3316Digitizers
+using StruckVMEDevices
 
 makedocs(
-    sitename = "SIS3316Digitizers",
-    modules = [SIS3316Digitizers],
+    sitename = "StruckVMEDevices",
+    modules = [StruckVMEDevices],
     format = Documenter.HTML(
         prettyurls = !("local" in ARGS),
-        canonical = "https://JuliaHEP.github.io/SIS3316Digitizers.jl/stable/"
+        canonical = "https://JuliaHEP.github.io/StruckVMEDevices.jl/stable/"
     ),
     pages=[
         "Home" => "index.md",
@@ -25,6 +25,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/JuliaHEP/SIS3316Digitizers.jl.git",
+    repo = "github.com/JuliaHEP/StruckVMEDevices.jl.git",
     forcepush = true
 )

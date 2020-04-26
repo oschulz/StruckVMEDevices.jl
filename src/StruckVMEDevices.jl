@@ -1,8 +1,8 @@
-# This file is a part of SIS3316Digitizers.jl, licensed under the MIT License (MIT).
+# This file is a part of StruckVMEDevices.jl, licensed under the MIT License (MIT).
 
 __precompile__(true)
 
-module SIS3316Digitizers
+module StruckVMEDevices
 
 using ArraysOfArrays
 using BitOperations
