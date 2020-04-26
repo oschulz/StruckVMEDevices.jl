@@ -9,7 +9,5 @@ using UnsafeArrays
 
 include("evtformat.jl")
 include("read_data.jl")
-include("sortevents.jl")
-include("filters.jl")
 
 end # module
