@@ -38,7 +38,7 @@ module EventFormat
 
     export evt_data_hdr1
     module evt_data_hdr1
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const timestamp_high    = RegBits(16:31)  # Timestamp, high bits
         const ch_id             = RegBits( 4:15)  # Channel ID
         const have_energy       = RegBit(3)  # Event contains Start Energy MAW value and Max. Energy MAW value
@@ -49,20 +49,20 @@ module EventFormat
 
     export evt_data_hdr2
     module evt_data_hdr2
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const timestamp_low     = RegBits(0:31)  # Timestamp, low bits
     end
 
     export evt_data_peak_height
     module evt_data_peak_height
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const peak_heigh_idx    = RegBits(16:31)  # Index of Peakhigh value
         const peak_heigh_val    = RegBits( 0:15)  # Peakhigh value
     end
 
     export evt_data_acc_sum_g1
     module evt_data_acc_sum_g1
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const overflow_flag     = RegBit(24 + 7)  # Overflow flag
         const underflow_flag    = RegBit(24 + 6)  # Underflow flag
         const repileup_flag     = RegBit(24 + 5)  # RePileup flag
@@ -72,13 +72,13 @@ module EventFormat
 
     export evt_data_acc_sum
     module evt_data_acc_sum
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const acc_sum           = RegBits(0:27)  # Accumulator sum of Gate (for Gates 2 to 8)
     end
 
     export evt_data_maw_value
     module evt_data_maw_value
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         # Note: Documentation says bit 0..27, but for some reason bit 27 seems
         # to (always?) be set:
         const maw_val           = RegBits(0:26)  # MAW value (maximum or value before or after trigger)
@@ -86,7 +86,7 @@ module EventFormat
 
     export evt_samples_hdr
     module evt_samples_hdr
-        using StruckVMEDevices.RegisterBits
+        using ...RegisterBits
         const const_tag         = RegBits(28:31)  # Always 0xE
         const maw_test_flag     = RegBit(27)  # MAW Test Flag
         const any_pileup_flag   = RegBit(26)  # RePileup or Pileup Flag
@@ -94,7 +94,7 @@ module EventFormat
     end
 end
 
-using StruckVMEDevices.EventFormat
+using .EventFormat
 
 
 

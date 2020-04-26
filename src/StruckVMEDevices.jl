@@ -4,14 +4,6 @@ __precompile__(true)
 
 module StruckVMEDevices
 
-using ArraysOfArrays
-using BitOperations
-using ElasticArrays
-using UnsafeArrays
-
-include("evtformat.jl")
-include("read_data.jl")
-include("sortevents.jl")
-include("filters.jl")
+include("SIS3316Digitizers/SIS3316Digitizers.jl")
 
 end # module
