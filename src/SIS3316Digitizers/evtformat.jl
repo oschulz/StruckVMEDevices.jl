@@ -9,8 +9,6 @@ end
 
 import Base.read, Base.write, Base.time
 
-export eachchunk
-
 
 module RegisterBits
     using BitOperations
@@ -285,7 +283,6 @@ read(io::IO, ::Type{RawChEvent}, nmawvalues::Int, firmware_type::FirmwareType, t
 
         oldlen = length(accsums)
         resize!(accsums, 8)
-        fill!(sub(accsums, (oldlen+1):6), 0)
         accsums[7] = Int32(evt_data_acc_sum.acc_sum(acc7_word))
         accsums[8] = Int32(evt_data_acc_sum.acc_sum(acc8_word))
     end

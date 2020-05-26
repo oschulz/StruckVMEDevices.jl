@@ -3,6 +3,8 @@
 import Test
 Test.@testset "Package StruckVMEDevices" begin
 
-# test code goes here
+include("MemRegisters/runtests.jl")
+include("VMEGateways/runtests.jl")
+include("SIS3316Digitizers/runtests.jl")
 
 end # testset

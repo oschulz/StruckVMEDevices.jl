@@ -41,7 +41,7 @@ function read_data(input::IO; nbuffers = typemax(Int))
     end
     # info("Read $nbufread buffers * channels")
 
-    (
+    Table(
         daqevtno = daqevtno,
         bufferno = bufferno,
         channel = channel,
