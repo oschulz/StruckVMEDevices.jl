@@ -85,7 +85,7 @@ export SIS3316Digitizer
 function SIS3316Digitizer(hostname::AbstractString, port::Integer = 0xE000)
     gw = SIS3316Gateway(hostname, port)
     mem = SIS3316Memory(gw)
-    fifo_mem = (deepcopy(mem), deepcopy(mem), deepcopy(mem), deepcopy(mem))
+    fifo_mem = (mem, mem, mem, mem)
     fifo_mem_lock = (ReentrantLock(), ReentrantLock(), ReentrantLock(), ReentrantLock())
     events = Observable(SIS3316Data())
     evtrate = Observable(fill(0.0, length(all_channels)))
