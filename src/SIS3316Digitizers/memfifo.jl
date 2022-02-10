@@ -206,7 +206,12 @@ const fpga_ch_mem_space_sel = IdDict(
 export fpga_ch_mem_space_sel
 
 
-jumbo_frames_enabled(mem::SIS3316Memory) = mem[SIS3316Digitizers.udp_protocol_config_reg.jumbo_packet_enable]
+function jumbo_frames_enabled(mem::SIS3316Memory)
+    # Called during fifo I/O, bypass R/W task:
+    r = UInt32[0]
+    SIS3316Digitizers.read_registers!(mem.gw, [getaddress(SIS3316Digitizers.udp_protocol_config_reg)], r)
+    getval(first(r), getlayout(SIS3316Digitizers.udp_protocol_config_reg.jumbo_packet_enable))
+end
 export jumbo_frames_enabled
 
 function jumbo_frames_enabled!(mem::SIS3316Memory, enabled::Bool)
@@ -234,7 +239,9 @@ function start_fifo_read!(mem::SIS3316Memory, ch::Integer, bank::Integer, from::
 
     # @debug "Writing value $(repr(ctlreg_val)) to data transfer control register $(repr(ctlreg_addr))"
     #mem.sync() #!!!
-    mem[ctlreg_addr] = ctlreg_val
+    #mem[ctlreg_addr] = ctlreg_val
+    # Bypass R/W task:
+    write_registers!(mem.gw, [ctlreg_addr], [ctlreg_val])
     nothing
 end
 export start_fifo_read!
@@ -250,7 +257,9 @@ function reset_fifo!(mem::SIS3316Memory, ch::Integer)
 
     # @debug "Writing value $(repr(ctlreg_val)) to data transfer control register $(repr(ctlreg_addr))"
     #mem.sync() #!!!
-    mem[ctlreg_addr] = ctlreg_val
+    #mem[ctlreg_addr] = ctlreg_val
+    # Bypass R/W task:
+    write_registers!(mem.gw, [ctlreg_addr], [ctlreg_val])
     nothing
 end
 export reset_fifo!
@@ -269,6 +278,8 @@ const max_n_bytes_per_req = div(min(
 
 
 function read_adc_fifo_raw!(mem::SIS3316Memory, address::MemAddr, data::AbstractVector{T}) where {T<:Unsigned}
+    use_jumbo_frame = jumbo_frames_enabled(mem) # Register read also ensures no pending reads/writes
+
     n_bytes = Int(length(eachindex(data)) * sizeof(T))
     @argcheck n_bytes % sizeof(UInt32) == 0
     @debug "Reading $n_bytes from FIFO memory, starting at address $(repr(address))" 
