@@ -267,6 +267,7 @@ export reset_fifo!
 
 const max_udp_req_pkg_size = 1485
 const max_udp_resp_pkg_size = 1485
+const max_udp_jumbo_pkg_size = 8237
 
 const udp_resp_header_size = 45 # According to SIS3316 docs - why not 28 (17 + 8 + 3)?
 const max_n_resp_data_frames = 15
@@ -278,11 +279,18 @@ const max_n_bytes_per_req = div(min(
 
 
 function read_adc_fifo_raw!(mem::SIS3316Memory, address::MemAddr, data::AbstractVector{T}) where {T<:Unsigned}
-    use_jumbo_frame = jumbo_frames_enabled(mem) # Register read also ensures no pending reads/writes
+    use_jumbo_frames = jumbo_frames_enabled(mem) # Register read also ensures no pending reads/writes
 
     n_bytes = Int(length(eachindex(data)) * sizeof(T))
     @argcheck n_bytes % sizeof(UInt32) == 0
     @debug "Reading $n_bytes from FIFO memory, starting at address $(repr(address))" 
+
+    udp_resp_size_limit = use_jumbo_frames ? max_udp_jumbo_pkg_size : max_udp_resp_pkg_size
+
+    max_n_bytes_per_req = div(min(
+        max_n_resp_data_frames * (udp_resp_size_limit - udp_resp_header_size),
+        (typemax(UInt16) + 1) * sizeof(UInt32)
+    ), sizeof(UInt32)) * sizeof(UInt32)
 
     data_words = reinterpret(UInt32, data)
     max_n_words_per_req = div(max_n_bytes_per_req, sizeof(UInt32))
