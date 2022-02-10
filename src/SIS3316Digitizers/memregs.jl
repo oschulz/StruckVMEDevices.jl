@@ -76,7 +76,20 @@ export modid_fw_reg
 
 # Not implemented: VME GW: Interrupt configuration register (0x8)
 # Not implemented: VME GW: Interrupt control register (0xC)
-# Not implemented: SIS3316: UDP Protocol Configuration Register (0x08)
+
+"""Module Id. and Firmware Revision Register (0x08, `udp_protocol_config_reg`)"""
+const udp_protocol_config_reg = Register{RW,RegVal}(
+    MemAddr(0x08),
+    (
+        reserved            = BitRange{RW}( 9:31),  # reserved
+        data_packet_format  = Bit{RW}( 8),          # UDP transmit Data packet format bit
+        reserved2           = BitRange{RW}( 5:7),   # reserved
+        jumbo_packet_enable = Bit{RW}( 4),          # UDP transmit jumbo Packet enable bit
+        transmit_packet_gap = BitRange{RW}( 0: 3),  # UDP transmit packet gap bits
+    )
+)
+export modid_fw_reg
+
 # Not implemented: SIS3316: Last UDP Acknowledge Status Register (0x0C)
 
 

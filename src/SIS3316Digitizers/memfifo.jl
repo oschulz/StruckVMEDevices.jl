@@ -206,6 +206,15 @@ const fpga_ch_mem_space_sel = IdDict(
 export fpga_ch_mem_space_sel
 
 
+jumbo_frames_enabled(mem::SIS3316Memory) = mem[SIS3316Digitizers.udp_protocol_config_reg.jumbo_packet_enable]
+export jumbo_frames_enabled
+
+function jumbo_frames_enabled!(mem::SIS3316Memory, enabled::Bool)
+    mem[SIS3316Digitizers.udp_protocol_config_reg.jumbo_packet_enable] = enabled
+end
+export jumbo_frames_enabled!
+
+
 function start_fifo_read!(mem::SIS3316Memory, ch::Integer, bank::Integer, from::Unsigned)
     @debug "Starting FIFO data transfer for channel $ch, bank $bank, address $(repr(from))"
     @argcheck from % 4 == 0
