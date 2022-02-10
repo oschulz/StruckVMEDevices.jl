@@ -71,8 +71,7 @@ SIS3316Digitizer(hostname::AbstractString, port::Integer = 0xE000)
 """
 mutable struct SIS3316Digitizer{Mem<:SIS3316Memory}
     mem::Mem
-    fifo_mem::NTuple{4,Mem}
-    fifo_mem_lock::NTuple{4,ReentrantLock}
+    fifo_mem_lock::ReentrantLock
     events::Observable{SIS3316Data}
     evtrate::Observable{Vector{Float64}}
     readout_config::ReadoutConfig
@@ -85,14 +84,13 @@ export SIS3316Digitizer
 function SIS3316Digitizer(hostname::AbstractString, port::Integer = 0xE000)
     gw = SIS3316Gateway(hostname, port)
     mem = SIS3316Memory(gw)
-    fifo_mem = (mem, mem, mem, mem)
-    fifo_mem_lock = (ReentrantLock(), ReentrantLock(), ReentrantLock(), ReentrantLock())
+    fifo_mem_lock = ReentrantLock()
     events = Observable(SIS3316Data())
     evtrate = Observable(fill(0.0, length(all_channels)))
     readout_config = ReadoutConfig()
     readout_reqs = Channel{Bool}(); close(readout_reqs)
 
-    dev = SIS3316Digitizer(mem, fifo_mem, fifo_mem_lock, events, evtrate, readout_config, readout_reqs)
+    dev = SIS3316Digitizer(mem, fifo_mem_lock, events, evtrate, readout_config, readout_reqs)
     dev.readout_reqs = readout_task(dev)
 
     finalizer(x -> close(x), dev)
@@ -110,9 +108,6 @@ Base.isopen(dev::SIS3316Digitizer) = isopen(dev.mem)
 
 function Base.close(dev::SIS3316Digitizer)
     close(dev.mem)
-    for m in dev.fifo_mem
-        close(m)
-    end
 end
 
 
@@ -306,8 +301,8 @@ export print_bank_info
 
 function read_ch_bank_data(dev::SIS3316Digitizer, ch::Integer, bank::Integer, from::Integer = 0, n_bytes::Integer = ch_buffer_size)
     group = fpga_num(ch)
-    lock(dev.fifo_mem_lock[group]) do
-        read_ch_bank_data(dev.fifo_mem[group], ch::Integer, bank::Integer, from, n_bytes)
+    lock(dev.fifo_mem_lock) do
+        read_ch_bank_data(dev.mem, ch::Integer, bank::Integer, from, n_bytes)
     end
 end
 export read_ch_bank_data
