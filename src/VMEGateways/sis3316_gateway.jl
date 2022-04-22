@@ -403,9 +403,9 @@ function write_registers!(gw::SIS3316Gateway, addrs::AbstractVector{UInt32}, val
             for i in li_idxs
                 write_link_interface_register!(gw, addrs[i], values[i], timeout = timeout)
 
-                # sleep(0.005) # or yield() for a shorter pause
+                sleep(0.005) # or yield() for a shorter pause
             end
-            # sleep(0.05) # or yield() for a shorter pause
+            sleep(0.015) # or yield() for a shorter pause
 
             write_register_space!(gw, addrs[re_idxs], values[re_idxs], timeout = timeout)
         end
