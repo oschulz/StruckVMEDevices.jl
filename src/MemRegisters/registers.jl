@@ -299,7 +299,7 @@ Base.merge(a::NamedTuple, grp::BitGroup{names}) where {names} = merge(a, getlayo
 @inline Base.getindex(grp::BitGroup, i::Integer) = getlayout(grp)[i]
 
 
-Base.show(io::IO, grp::BitGroup{Acc}) where {Acc,Addr,T} = print(io, "BitGroup{$Acc}($(repr(getlayout(grp))))")
+Base.show(io::IO, grp::BitGroup{Acc}) where {Acc} = print(io, "BitGroup{$Acc}($(repr(getlayout(grp))))")
 
 function Base.show(io::IO, ::MIME"text/plain", grp::BitGroup{Acc}) where {Acc}
     println(io, "BitGroup{$Acc}(")
@@ -313,7 +313,7 @@ function Base.show(io::IO, ::MIME"text/plain", grp::BitGroup{Acc}) where {Acc}
 end
 
 
-@inline Base.:<<(grp::BitGroup{Acc}, n::Integer) where {Acc,r} =
+@inline Base.:<<(grp::BitGroup{Acc}, n::Integer) where {Acc} =
     BitGroup{Acc}(map(bsel -> bsel << n, getlayout(grp)))
 
 
